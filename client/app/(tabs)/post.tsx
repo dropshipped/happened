@@ -4,6 +4,8 @@ import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { ImagePickerAsset } from "expo-image-picker";
 import * as Crypto from "expo-crypto";
+import { create } from "@bufbuild/protobuf";
+import { GetUploadImageURLRequestSchema } from "@/gen/protos/protos/v1/happened_messages_pb";
 
 export default function PostScreen() {
   const [url, setUrl] = useState("");
@@ -43,6 +45,7 @@ export default function PostScreen() {
           try {
             const imageKey = Crypto.randomUUID();
             console.log("imageKey", imageKey);
+
             const { uploadUrl } = await client.getUploadImageURL({
               imageKey,
             });
