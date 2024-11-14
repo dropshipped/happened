@@ -18,7 +18,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
-	storage_go "github.com/supabase-community/storage-go"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 
@@ -26,22 +25,22 @@ import (
 )
 
 type Config struct {
-	DbHost string `env:"DB_HOST"`
-	DbUser string `env:"DB_USER"`
-	DbPass string `env:"DB_PASS"`
-	DbName string `env:"DB_NAME"`
-	DbPort int    `env:"DB_PORT"`
+	DbHost             string `env:"DB_HOST"`
+	DbUser             string `env:"DB_USER"`
+	DbPass             string `env:"DB_PASS"`
+	DbName             string `env:"DB_NAME"`
+	DbPort             int    `env:"DB_PORT"`
 	SupabaseS3Endpoint string `env:"SUPABASE_S3_ENDPOINT"`
 
 	SupabaseS3Region string `env:"SUPABASE_S3_REGION"`
-	
+
 	SupabaseS3AccessKeyID string `env:"SUPABASE_S3_ACCESS_KEY_ID"`
-	
+
 	SupabaseS3SecretAccessKey string `env:"SUPABASE_S3_SECRET_ACCESS_KEY"`
 }
 
 var (
-	Port = 8080
+	Port      = 8080
 	AwsRegion = "us-west-2"
 )
 
@@ -53,7 +52,6 @@ func pgConnString(config Config) string {
 		config.DbPass,
 		config.DbName)
 }
-
 
 func main() {
 	stage := flag.String("stage", "production", "-stage development|production")
@@ -102,7 +100,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	
+
 	cfg, err := awsConfig.LoadDefaultConfig(ctx, awsConfig.WithRegion(AwsRegion))
 	if err != nil {
 		logger.Error("failed to load aws config", slog.Any("error", err))
@@ -111,12 +109,9 @@ func main() {
 
 	logger.Info("aws config", slog.Any("region", cfg.Region))
 
-	storageClient := storage_go.NewClient(
-		config.SupabaseS3Endpoint, config.SupabaseS3SecretAccessKey, nil,
-	)
 	// Setup S3 bucket
 	s3Client := s3.NewFromConfig(cfg)
-	api := server.New(s3Client, storageClient)
+	api := server.New(s3Client, nil)
 	mux := http.NewServeMux()
 
 	// Create server
