@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "google/protobuf/struct.proto";
 
 package happened_messages;
 
@@ -26,6 +27,21 @@ message CreateEventResponse {
 message GetUploadImageURLRequest {
     string image_key = 1;
 }
+
+message Headers {
+    message Values {
+        repeated string values  = 1;
+    }
+    map<string, Values> values = 2;
+}
+
+
+// GetUploadImageURLResponse contains a presigned for a .jpeg image upload PUT request and the headers that go along with it.
+// Example request in Javascript:
+// const response = ...
+// await fetch(response.uploadUrl, { headers: response.headers, body: <image_binary> })
 message GetUploadImageURLResponse {
   string upload_url = 1;
+  google.protobuf.Struct headers = 2;
+  string method = 3;
 }

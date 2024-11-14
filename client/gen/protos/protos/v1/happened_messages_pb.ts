@@ -4,13 +4,14 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
-import type { Message } from "@bufbuild/protobuf";
+import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
+import type { JsonObject, Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file protos/v1/happened_messages.proto.
  */
 export const file_protos_v1_happened_messages: GenFile = /*@__PURE__*/
-  fileDesc("CiFwcm90b3MvdjEvaGFwcGVuZWRfbWVzc2FnZXMucHJvdG8SEWhhcHBlbmVkX21lc3NhZ2VzIhwKDEdyZWV0UmVxdWVzdBIMCgRuYW1lGAEgASgJIiEKDUdyZWV0UmVzcG9uc2USEAoIZ3JlZXRpbmcYASABKAkiFgoFRXZlbnQSDQoFdGl0bGUYASABKAkiRwoSQ3JlYXRlRXZlbnRSZXF1ZXN0Eg0KBXRpdGxlGAEgASgJEhMKC2Rlc2NyaXB0aW9uGAIgASgJEg0KBXBsYWNlGAMgASgJIj4KE0NyZWF0ZUV2ZW50UmVzcG9uc2USJwoFZXZlbnQYASABKAsyGC5oYXBwZW5lZF9tZXNzYWdlcy5FdmVudCItChhHZXRVcGxvYWRJbWFnZVVSTFJlcXVlc3QSEQoJaW1hZ2Vfa2V5GAEgASgJIi8KGUdldFVwbG9hZEltYWdlVVJMUmVzcG9uc2USEgoKdXBsb2FkX3VybBgBIAEoCUImWiRoYXBwZW5lZGFwaS9nZW4vcHJvdG9zL3YxO2hhcHBlbmVkdjFiBnByb3RvMw");
+  fileDesc("CiFwcm90b3MvdjEvaGFwcGVuZWRfbWVzc2FnZXMucHJvdG8SEWhhcHBlbmVkX21lc3NhZ2VzIhwKDEdyZWV0UmVxdWVzdBIMCgRuYW1lGAEgASgJIiEKDUdyZWV0UmVzcG9uc2USEAoIZ3JlZXRpbmcYASABKAkiFgoFRXZlbnQSDQoFdGl0bGUYASABKAkiRwoSQ3JlYXRlRXZlbnRSZXF1ZXN0Eg0KBXRpdGxlGAEgASgJEhMKC2Rlc2NyaXB0aW9uGAIgASgJEg0KBXBsYWNlGAMgASgJIj4KE0NyZWF0ZUV2ZW50UmVzcG9uc2USJwoFZXZlbnQYASABKAsyGC5oYXBwZW5lZF9tZXNzYWdlcy5FdmVudCItChhHZXRVcGxvYWRJbWFnZVVSTFJlcXVlc3QSEQoJaW1hZ2Vfa2V5GAEgASgJIq0BCgdIZWFkZXJzEjYKBnZhbHVlcxgCIAMoCzImLmhhcHBlbmVkX21lc3NhZ2VzLkhlYWRlcnMuVmFsdWVzRW50cnkaGAoGVmFsdWVzEg4KBnZhbHVlcxgBIAMoCRpQCgtWYWx1ZXNFbnRyeRILCgNrZXkYASABKAkSMAoFdmFsdWUYAiABKAsyIS5oYXBwZW5lZF9tZXNzYWdlcy5IZWFkZXJzLlZhbHVlczoCOAEiaQoZR2V0VXBsb2FkSW1hZ2VVUkxSZXNwb25zZRISCgp1cGxvYWRfdXJsGAEgASgJEigKB2hlYWRlcnMYAiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Eg4KBm1ldGhvZBgDIAEoCUImWiRoYXBwZW5lZGFwaS9nZW4vcHJvdG9zL3YxO2hhcHBlbmVkdjFiBnByb3RvMw", [file_google_protobuf_struct]);
 
 /**
  * @generated from message happened_messages.GreetRequest
@@ -125,6 +126,45 @@ export const GetUploadImageURLRequestSchema: GenMessage<GetUploadImageURLRequest
   messageDesc(file_protos_v1_happened_messages, 5);
 
 /**
+ * @generated from message happened_messages.Headers
+ */
+export type Headers = Message<"happened_messages.Headers"> & {
+  /**
+   * @generated from field: map<string, happened_messages.Headers.Values> values = 2;
+   */
+  values: { [key: string]: Headers_Values };
+};
+
+/**
+ * Describes the message happened_messages.Headers.
+ * Use `create(HeadersSchema)` to create a new message.
+ */
+export const HeadersSchema: GenMessage<Headers> = /*@__PURE__*/
+  messageDesc(file_protos_v1_happened_messages, 6);
+
+/**
+ * @generated from message happened_messages.Headers.Values
+ */
+export type Headers_Values = Message<"happened_messages.Headers.Values"> & {
+  /**
+   * @generated from field: repeated string values = 1;
+   */
+  values: string[];
+};
+
+/**
+ * Describes the message happened_messages.Headers.Values.
+ * Use `create(Headers_ValuesSchema)` to create a new message.
+ */
+export const Headers_ValuesSchema: GenMessage<Headers_Values> = /*@__PURE__*/
+  messageDesc(file_protos_v1_happened_messages, 6, 0);
+
+/**
+ * GetUploadImageURLResponse contains a presigned for a .jpeg image upload PUT request and the headers that go along with it.
+ * Example request in Javascript:
+ * const response = ...
+ * await fetch(response.uploadUrl, { headers: response.headers, body: <image_binary> })
+ *
  * @generated from message happened_messages.GetUploadImageURLResponse
  */
 export type GetUploadImageURLResponse = Message<"happened_messages.GetUploadImageURLResponse"> & {
@@ -132,6 +172,16 @@ export type GetUploadImageURLResponse = Message<"happened_messages.GetUploadImag
    * @generated from field: string upload_url = 1;
    */
   uploadUrl: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct headers = 2;
+   */
+  headers?: JsonObject;
+
+  /**
+   * @generated from field: string method = 3;
+   */
+  method: string;
 };
 
 /**
@@ -139,5 +189,5 @@ export type GetUploadImageURLResponse = Message<"happened_messages.GetUploadImag
  * Use `create(GetUploadImageURLResponseSchema)` to create a new message.
  */
 export const GetUploadImageURLResponseSchema: GenMessage<GetUploadImageURLResponse> = /*@__PURE__*/
-  messageDesc(file_protos_v1_happened_messages, 6);
+  messageDesc(file_protos_v1_happened_messages, 7);
 

@@ -13,11 +13,13 @@ import (
 	"os"
 	"strconv"
 
+	connectcors "connectrpc.com/cors"
 	"connectrpc.com/grpcreflect"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 
@@ -51,6 +53,18 @@ func pgConnString(config Config) string {
 		config.DbUser,
 		config.DbPass,
 		config.DbName)
+}
+
+func WithCORS(connectHandler http.Handler) http.Handler {
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"}, // replace with your domain
+		AllowedMethods: connectcors.AllowedMethods(),
+		AllowedHeaders: connectcors.AllowedHeaders(),
+		ExposedHeaders: connectcors.ExposedHeaders(),
+		MaxAge: 7200, // 2 hours in seconds
+	  })
+
+	return c.Handler(connectHandler)
 }
 
 func main() {
