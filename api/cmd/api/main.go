@@ -13,6 +13,7 @@ import (
 	"os"
 	"strconv"
 
+	"connectrpc.com/connect"
 	connectcors "connectrpc.com/cors"
 	"connectrpc.com/grpcreflect"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
@@ -61,11 +62,49 @@ func WithCORS(connectHandler http.Handler) http.Handler {
 		AllowedMethods: connectcors.AllowedMethods(),
 		AllowedHeaders: connectcors.AllowedHeaders(),
 		ExposedHeaders: connectcors.ExposedHeaders(),
-		MaxAge: 7200, // 2 hours in seconds
-	  })
+		MaxAge:         7200, // 2 hours in seconds
+	})
 
 	return c.Handler(connectHandler)
 }
+
+func ConnectErrorWrappingInterceptor() connect.UnaryInterceptorFunc {
+	interceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+	  return connect.UnaryFunc(func(
+		ctx context.Context,
+		req connect.AnyRequest,
+	  ) (connect.AnyResponse, error) {
+		res, err := next(ctx, req)
+		if err == nil {
+			return res, nil
+		}
+
+		if _, ok := err.(*connect.Error); !ok {
+			err = connect.NewError(connect.CodeInternal, err)
+		}
+
+		return res, err
+	  })
+	}
+	return interceptor
+}
+
+
+func LoggingInterceptor() connect.UnaryInterceptorFunc {
+	interceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+	  return connect.UnaryFunc(func(
+		ctx context.Context,
+		req connect.AnyRequest,
+	  ) (connect.AnyResponse, error) {
+		res, err := next(ctx, req)
+		if err != nil {
+			slog.Error("Error during request: ", slog.Any("error", err))
+		}
+		return res, err
+	  })
+	}
+	return connect.UnaryInterceptorFunc(interceptor)
+  }
 
 func main() {
 	stage := flag.String("stage", "production", "-stage development|production")
@@ -113,6 +152,8 @@ func main() {
 		os.Exit(1)
 	}
 
+
+
 	ctx := context.Background()
 
 	cfg, err := awsConfig.LoadDefaultConfig(ctx, awsConfig.WithRegion(AwsRegion))
@@ -128,8 +169,14 @@ func main() {
 	api := server.New(s3Client, nil)
 	mux := http.NewServeMux()
 
+	interceptors := connect.WithInterceptors(
+		LoggingInterceptor(), 
+		// ConnectErrorWrappingInterceptor(),
+	)
+
+
 	// Create server
-	path, handler := happenedv1connect.NewHappenedServiceHandler(api)
+	path, handler := happenedv1connect.NewHappenedServiceHandler(api, interceptors)
 	mux.Handle(path, handler)
 	logger.Info("happenedv1connect.HappenedServiceName", slog.String("name", happenedv1connect.HappenedServiceName))
 

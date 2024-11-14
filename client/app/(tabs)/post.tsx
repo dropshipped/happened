@@ -60,7 +60,7 @@ export default function PostScreen() {
             console.log("uploadUrl", uploadUrl);
           } catch (e) {
             if (e instanceof ConnectError) {
-              console.error(e.cause, e.details, e.code);
+              console.error(e);
             }
           }
         }}

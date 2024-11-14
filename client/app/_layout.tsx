@@ -11,9 +11,10 @@ import * as SecureStore from "expo-secure-store";
 import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
 import { CLERK_PUBLISHABLE_KEY } from "@/env";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import "../global.css";
+
 import "react-native-reanimated";
 import "fast-text-encoding";
-import "../global.css";
 import { polyfills } from "@/app/polyfill.native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.

@@ -15,6 +15,14 @@ import { useEffect, useState } from "react";
 import { ConnectError } from "@connectrpc/connect";
 import { client } from "@/app/client";
 
+import "react-native-reanimated";
+import "fast-text-encoding";
+import { polyfills } from "@/app/polyfill.native";
+
+// Needed to polyfill TextEncoder/ TextDecoder
+
+polyfills();
+
 export default function HomeScreen() {
   const [greeting, setGreeting] = useState("none");
 
@@ -22,19 +30,13 @@ export default function HomeScreen() {
     const getData = async () => {
       try {
         const response = await client.greet({
-          name: "Andy",
+          name: "",
         });
         console.log("response", response);
         setGreeting(response.greeting);
       } catch (e) {
         if (e instanceof ConnectError) {
-          console.error(
-            "error calling greet",
-            e.name,
-            e.details,
-            e.cause,
-            e.code,
-          );
+          console.error("error calling greet", e);
         }
       }
     };

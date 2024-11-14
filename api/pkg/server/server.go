@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	pb "happenedapi/gen/protos/v1"
 	"happenedapi/gen/protos/v1/happenedv1connect"
@@ -42,6 +43,8 @@ func (s *HappenedServer) GetUploadImageURL(
 	slog.Info("generating presigned", slog.String("imageKey", imageKey))
 	presignClient := s3.NewPresignClient(s.s3Client)
 
+
+
 	presignedPutRequest, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
 		Bucket:      aws.String(HappenedBucketName),
 		Key:         aws.String(imageKey),
@@ -57,13 +60,15 @@ func (s *HappenedServer) GetUploadImageURL(
 	for key, value := range presignedPutRequest.SignedHeader {
 		headers[key] = value
 	}
+
+
 	headerStruct, err := structpb.NewStruct(headers)
 	if err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 
-	
+
 	log.Println("presigned request", presignedPutRequest)
 	response := connect.NewResponse(&pb.GetUploadImageURLResponse{
 		Method:    presignedPutRequest.Method,
@@ -83,10 +88,16 @@ func (s *HappenedServer) Greet(
 	ctx context.Context,
 	req *connect.Request[pb.GreetRequest]) (*connect.Response[pb.GreetResponse], error) {
 	log.Println("Request headers", req.Header())
+	if req.Msg.GetName() == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("please give a name"))
+	}
+
 
 	res := connect.NewResponse(&pb.GreetResponse{
 		Greeting: fmt.Sprintf("Hello, %s!", req.Msg.Name),
 	})
 	res.Header().Set("Greet-Version", "v1")
+
+
 	return res, nil
 }
