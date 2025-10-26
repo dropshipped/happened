@@ -1,8 +1,15 @@
+import GooglePlacesAutocomplete from "@/components/google-places-autocomplete";
 import * as Location from "expo-location";
-import { useEffect, useState } from "react";
-import { Platform, StyleSheet, TextInput, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Platform, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+interface SearchResult {
+  latitude: number;
+  longitude: number;
+  title: string;
+}
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -10,7 +17,8 @@ export default function HomeScreen() {
     null
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
+  const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
     (async () => {
@@ -29,16 +37,46 @@ export default function HomeScreen() {
     console.error(errorMsg);
   }
 
-  const initialRegion = {
-    latitude: location?.coords.latitude || 37.78825,
-    longitude: location?.coords.longitude || -122.4324,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+  const handlePlaceSelect = (data: any, details: any) => {
+    const searchLocationData = {
+      latitude: details.geometry.location.lat,
+      longitude: details.geometry.location.lng,
+      title: details.formatted_address || data.description,
+    };
+    setSearchResult(searchLocationData);
+
+    // Animate map to the search result
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: searchLocationData.latitude,
+          longitude: searchLocationData.longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        },
+        1000
+      );
+    }
   };
+
+  const initialRegion = searchResult
+    ? {
+        latitude: searchResult.latitude,
+        longitude: searchResult.longitude,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }
+    : {
+        latitude: location?.coords.latitude || 37.78825,
+        longitude: location?.coords.longitude || -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      };
 
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         provider={Platform.OS === "ios" ? PROVIDER_GOOGLE : undefined}
         style={styles.map}
         initialRegion={initialRegion}
@@ -55,17 +93,25 @@ export default function HomeScreen() {
             description={`Lat: ${location.coords.latitude.toFixed(
               4
             )}, Lng: ${location.coords.longitude.toFixed(4)}`}
+            pinColor="blue"
+          />
+        )}
+        {searchResult && (
+          <Marker
+            coordinate={{
+              latitude: searchResult.latitude,
+              longitude: searchResult.longitude,
+            }}
+            title={searchResult.title}
+            pinColor="red"
           />
         )}
       </MapView>
       <View style={[styles.searchContainer, { top: insets.top + 10 }]}>
-        <TextInput
-          style={styles.searchInput}
+        <GooglePlacesAutocomplete
+          onSelect={handlePlaceSelect}
           placeholder="Search for a location..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          autoCapitalize="none"
-          autoCorrect={false}
+          apiKey={process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY}
         />
       </View>
     </View>
@@ -84,20 +130,5 @@ const styles = StyleSheet.create({
     left: 10,
     right: 10,
     zIndex: 1,
-  },
-  searchInput: {
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 999,
-    fontSize: 16,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
 });
