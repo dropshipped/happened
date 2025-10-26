@@ -1,13 +1,16 @@
 import * as Location from "expo-location";
 import { useEffect, useState } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, TextInput, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -55,6 +58,16 @@ export default function HomeScreen() {
           />
         )}
       </MapView>
+      <View style={[styles.searchContainer, { top: insets.top + 10 }]}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search for a location..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </View>
     </View>
   );
 }
@@ -65,5 +78,26 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  searchContainer: {
+    position: "absolute",
+    left: 10,
+    right: 10,
+    zIndex: 1,
+  },
+  searchInput: {
+    backgroundColor: "white",
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderRadius: 999,
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
