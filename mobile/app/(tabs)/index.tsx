@@ -1,4 +1,5 @@
 import GooglePlacesAutocomplete from "@/components/google-places-autocomplete";
+import LocationDrawer from "@/components/location-drawer";
 import * as Location from "expo-location";
 import { useEffect, useRef, useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
@@ -8,7 +9,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface SearchResult {
   latitude: number;
   longitude: number;
-  title: string;
+  name: string;
+  address: string;
 }
 
 export default function HomeScreen() {
@@ -18,6 +20,7 @@ export default function HomeScreen() {
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
@@ -41,9 +44,14 @@ export default function HomeScreen() {
     const searchLocationData = {
       latitude: details.geometry.location.lat,
       longitude: details.geometry.location.lng,
-      title: details.formatted_address || data.description,
+      name:
+        details.name ||
+        data.structured_formatting?.main_text ||
+        data.description.split(",")[0],
+      address: details.formatted_address || data.description,
     };
     setSearchResult(searchLocationData);
+    setDrawerVisible(true);
 
     // Animate map to the search result
     if (mapRef.current) {
@@ -102,7 +110,8 @@ export default function HomeScreen() {
               latitude: searchResult.latitude,
               longitude: searchResult.longitude,
             }}
-            title={searchResult.title}
+            title={searchResult.name}
+            description={searchResult.address}
             pinColor="red"
           />
         )}
@@ -114,6 +123,11 @@ export default function HomeScreen() {
           apiKey={process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY}
         />
       </View>
+      <LocationDrawer
+        location={searchResult}
+        visible={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+      />
     </View>
   );
 }
